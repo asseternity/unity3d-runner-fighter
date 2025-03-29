@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BattleMapSystem;
 using BattleMovesSystem;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -42,6 +43,11 @@ public class BattlePlayerController : MonoBehaviour
     // targeting
     private GameObject target;
 
+    // identifying obstacles
+    List<Vector2> currentPositionsOfCreatures = new List<Vector2>();
+    public List<GameObject> enemiesOnMap = new List<GameObject>();
+    BattleObstacleTracker tracker = new BattleObstacleTracker();
+
     // to do here:
     // [v] 1) create a battle system ui:
     // that shows whose turn it is
@@ -65,8 +71,17 @@ public class BattlePlayerController : MonoBehaviour
     // [v] 18) display health on a thing attached over their heads
     // [v] 19) finish attacking
     // [v] 20) action economy
-    // [_] 21) check if there is an enemy on the cell and block movement if there is
-    // [_] 22) make an List of enemies, a method for doing their turns, and iterate through the List with the method for ai
+    // [v] 21) fill enemies with available moves
+    // [v] 22) check if there is an enemy on the cell and block movement if there is:
+    // [v] make a List of coordinates that are taken
+    // [v] add every enemy to that list
+    // [v] before the move, iterate over the list to see if that block is not in the list
+    // [_] 23) make an List of enemies, a method for doing their turns, and iterate through the List with the method for ai
+    // [_] 24) little animations for:
+    // [_] attacks
+    // [_] turn switches
+    // [_] hits and misses
+    // [_] fight log
 
     void Start()
     {
@@ -84,6 +99,7 @@ public class BattlePlayerController : MonoBehaviour
     void Update()
     {
         SelectTarget();
+        currentPositionsOfCreatures = tracker.populateCoordsList(enemiesOnMap);
 
         if (playersTurn && playerMovementLeft > 0)
         {
@@ -94,46 +110,74 @@ public class BattlePlayerController : MonoBehaviour
                     currentGridPosition.y,
                     currentGridPosition.z
                 );
-                Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
-                transform.position = worldPos;
-                currentGridPosition = desiredGridPosition;
-                playerMovementLeft--;
+                Vector2 desiredGridPositionTester = new Vector2(
+                    desiredGridPosition.x,
+                    desiredGridPosition.y
+                );
+                if (tracker.isCellEmpty(desiredGridPositionTester, currentPositionsOfCreatures))
+                {
+                    Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
+                    transform.position = worldPos;
+                    currentGridPosition = desiredGridPosition;
+                    playerMovementLeft--;
+                }
             }
-            if (Input.GetKeyDown(KeyCode.D))
+            else if (Input.GetKeyDown(KeyCode.D))
             {
                 Vector3Int desiredGridPosition = new Vector3Int(
                     currentGridPosition.x + 1,
                     currentGridPosition.y,
                     currentGridPosition.z
                 );
-                Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
-                transform.position = worldPos;
-                currentGridPosition = desiredGridPosition;
-                playerMovementLeft--;
+                Vector2 desiredGridPositionTester = new Vector2(
+                    desiredGridPosition.x,
+                    desiredGridPosition.y
+                );
+                if (tracker.isCellEmpty(desiredGridPositionTester, currentPositionsOfCreatures))
+                {
+                    Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
+                    transform.position = worldPos;
+                    currentGridPosition = desiredGridPosition;
+                    playerMovementLeft--;
+                }
             }
-            if (Input.GetKeyDown(KeyCode.W))
+            else if (Input.GetKeyDown(KeyCode.W))
             {
                 Vector3Int desiredGridPosition = new Vector3Int(
                     currentGridPosition.x,
                     currentGridPosition.y + 1,
                     currentGridPosition.z
                 );
-                Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
-                transform.position = worldPos;
-                currentGridPosition = desiredGridPosition;
-                playerMovementLeft--;
+                Vector2 desiredGridPositionTester = new Vector2(
+                    desiredGridPosition.x,
+                    desiredGridPosition.y
+                );
+                if (tracker.isCellEmpty(desiredGridPositionTester, currentPositionsOfCreatures))
+                {
+                    Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
+                    transform.position = worldPos;
+                    currentGridPosition = desiredGridPosition;
+                    playerMovementLeft--;
+                }
             }
-            if (Input.GetKeyDown(KeyCode.S))
+            else if (Input.GetKeyDown(KeyCode.S))
             {
                 Vector3Int desiredGridPosition = new Vector3Int(
                     currentGridPosition.x,
                     currentGridPosition.y - 1,
                     currentGridPosition.z
                 );
-                Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
-                transform.position = worldPos;
-                currentGridPosition = desiredGridPosition;
-                playerMovementLeft--;
+                Vector2 desiredGridPositionTester = new Vector2(
+                    desiredGridPosition.x,
+                    desiredGridPosition.y
+                );
+                if (tracker.isCellEmpty(desiredGridPositionTester, currentPositionsOfCreatures))
+                {
+                    Vector3 worldPos = grid.CellToWorld(desiredGridPosition) + grid.cellSize / 2f;
+                    transform.position = worldPos;
+                    currentGridPosition = desiredGridPosition;
+                    playerMovementLeft--;
+                }
             }
         }
         // now update ui

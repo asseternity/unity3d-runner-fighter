@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using BattleMovesSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,10 @@ public class BattleEnemy : MonoBehaviour
 
     [Tooltip("The current grid position (x,y) where the player currently is")]
     public Vector3Int currentGridPosition;
+
+    // moves available to this enemy
+    BattleMoves basicAttack = new BattleMoves("Basic attack", 1, 10, 1);
+    public List<BattleMoves> moves = new List<BattleMoves>();
 
     // stats
     public int health = 10;
