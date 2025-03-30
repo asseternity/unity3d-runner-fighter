@@ -45,7 +45,7 @@ public class BattlePlayerController : MonoBehaviour
 
     // identifying obstacles
     List<Vector2> currentPositionsOfCreatures = new List<Vector2>();
-    public List<GameObject> enemiesOnMap = new List<GameObject>();
+    public List<GameObject> creaturesOnMap = new List<GameObject>();
     BattleObstacleTracker tracker = new BattleObstacleTracker();
 
     // to do here:
@@ -99,7 +99,7 @@ public class BattlePlayerController : MonoBehaviour
     void Update()
     {
         SelectTarget();
-        currentPositionsOfCreatures = tracker.populateCoordsList(enemiesOnMap);
+        currentPositionsOfCreatures = tracker.populateCoordsList(creaturesOnMap);
 
         if (playersTurn && playerMovementLeft > 0)
         {
@@ -238,24 +238,17 @@ public class BattlePlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("mouse clicked");
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit))
             {
-                Debug.Log("found clicked object");
                 GameObject clickedObject = hit.collider.gameObject;
                 if (clickedObject.CompareTag("creature"))
                 {
-                    Debug.Log("clicked object = creature");
                     target = clickedObject;
                     Text targetDataText = targetData.GetComponent<Text>();
                     targetDataText.text = target.name;
-                }
-                else
-                {
-                    Debug.Log("clicked object is not a creature");
                 }
             }
         }
