@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BattleMapSystem;
 using BattleMovesSystem;
 using UnityEngine;
@@ -12,10 +13,10 @@ namespace EnemyAI
         // this will hold methods that the ai will use to make its turn
         public bool canIAttack(Vector2 playerPosition, Vector2 myPosition, GameObject enemyObject)
         {
-            // 1) can I attack method - iterates through available moves, sees if there's a player within that distance
+            // can I attack method - iterates through available moves, sees if there's a player within that distance
             bool result = false;
-            float distanceX = Math.Abs(playerPosition.x - myPosition.y);
-            float distanceY = Math.Abs(playerPosition.x - myPosition.y);
+            float distanceX = Math.Abs(playerPosition.x - myPosition.x);
+            float distanceY = Math.Abs(playerPosition.y - myPosition.y);
             float totalDistance = Math.Max(distanceX, distanceY);
             BattleEnemy script = enemyObject.GetComponent<BattleEnemy>();
             for (int i = 0; i < script.moves.Count; i++)
@@ -26,6 +27,31 @@ namespace EnemyAI
                 }
             }
             return result;
+        }
+
+        public BattleMoves whichAttackToUse(
+            Vector2 playerPosition,
+            Vector2 myPosition,
+            GameObject enemyObject
+        )
+        {
+            List<BattleMoves> availableMoves = new List<BattleMoves>();
+            float distanceX = Math.Abs(playerPosition.x - myPosition.x);
+            float distanceY = Math.Abs(playerPosition.y - myPosition.y);
+            float totalDistance = Math.Max(distanceX, distanceY);
+            BattleEnemy script = enemyObject.GetComponent<BattleEnemy>();
+            for (int i = 0; i < script.moves.Count; i++)
+            {
+                if (script.moves[i].range >= totalDistance)
+                {
+                    availableMoves.Add(script.moves[i]);
+                }
+            }
+            var sortedMoves = availableMoves
+                .OrderByDescending(m => m.damage)
+                .ThenByDescending(m => m.accuracy)
+                .ToList();
+            return sortedMoves[0];
         }
 
         public Vector2 whichDirectionIsPlayer(
@@ -168,11 +194,72 @@ namespace EnemyAI
             return new Vector2();
         }
 
-        public void AIPriorities(GameObject enemyObject)
+        public void AIPriorities(
+            GameObject enemyObject,
+            GameObject playerObject,
+            List<Vector2> currentPositionOfCreatures
+        )
         {
             // AI method
-            // cycle through above two priorities until either:
-            // (1) no more action or movement or (2) action still there but can't attack player
+            // grab turn resources
+            BattleEnemy script = enemyObject.GetComponent<BattleEnemy>();
+            // first, see if you can attack
+            BattlePlayerController p = playerObject.GetComponent<BattlePlayerController>();
+            float playerX = p.currentGridPosition.x;
+            float playerY = p.currentGridPosition.y;
+            Vector2 playerPosition = new Vector2(playerX, playerY);
+            float myX = script.currentGridPosition.x;
+            float myY = script.currentGridPosition.y;
+            Vector2 myPosition = new Vector2(myX, myY);
+            bool attackPossible = canIAttack(playerPosition, myPosition, enemyObject);
+            if (attackPossible)
+            {
+                // if you can, do and end your turn
+                BattleMoves moveToUse = whichAttackToUse(playerPosition, myPosition, enemyObject);
+                script.UseAction(playerObject, moveToUse);
+                p.EndEnemyTurn();
+                return;
+            }
+            else
+            {
+                while (true)
+                {
+                    // if you can't, we enter a cycle:
+                    // step 1 of the cycle - check which direction to move, then move to that cell
+                    Vector2 nextDesiredMove = whichDirectionIsPlayer(
+                        playerPosition,
+                        myPosition,
+                        currentPositionOfCreatures
+                    );
+                    script.Move(nextDesiredMove);
+                    // step 2 of the cycle - check if you can attack. if can - do and end your turn, if can't, proceed
+                    bool attackPossible2 = canIAttack(playerPosition, myPosition, enemyObject);
+                    if (attackPossible2)
+                    {
+                        // if you can, do and end your turn
+                        BattleMoves moveToUse = whichAttackToUse(
+                            playerPosition,
+                            myPosition,
+                            enemyObject
+                        );
+                        script.UseAction(playerObject, moveToUse);
+                        p.EndEnemyTurn();
+                        return;
+                    }
+                    // step 3 of the cycle - if you're out of moves but cannot attack, end your turn
+                    if (script.movement == 0 && !attackPossible2)
+                    {
+                        p.EndEnemyTurn();
+                        return;
+                    }
+                    // step 4 of the cycle - if you're out of moves and action, end your turn
+                    if (script.movement == 0 && script.action == 0)
+                    {
+                        p.EndEnemyTurn();
+                        return;
+                    }
+                }
+            }
         }
     }
 }

@@ -22,6 +22,8 @@ public class BattleEnemy : MonoBehaviour
 
     // stats
     public int health = 10;
+    public int movement = 3;
+    public int action = 1;
 
     // ui
     public GameObject healthData;
@@ -47,5 +49,32 @@ public class BattleEnemy : MonoBehaviour
             TextMeshPro healthDataText = healthData.GetComponentInChildren<TextMeshPro>();
             healthDataText.text = health.ToString();
         }
+    }
+
+    // method to move
+    public void Move(Vector2 desiredGridPosition)
+    {
+        Vector3Int desiredGridPositionConverted = new Vector3Int(
+            (int)desiredGridPosition.x,
+            (int)desiredGridPosition.y,
+            0
+        );
+        Vector3 worldPos = grid.CellToWorld(desiredGridPositionConverted) + grid.cellSize / 2f;
+        transform.position = worldPos;
+        currentGridPosition = desiredGridPositionConverted;
+        movement--;
+    }
+
+    // method to act
+    public void UseAction(GameObject playerObject, BattleMoves move)
+    {
+        BattlePlayerController targetScript = playerObject.GetComponent<BattlePlayerController>();
+        System.Random rnd = new System.Random();
+        int attackRoll = rnd.Next(1, 20) + move.accuracy;
+        if (attackRoll > 10)
+        {
+            targetScript.playerHealth = targetScript.playerHealth - move.damage;
+        }
+        action--;
     }
 }

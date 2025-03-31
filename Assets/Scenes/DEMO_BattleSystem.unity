@@ -5449,8 +5449,9 @@ MonoBehaviour:
   actionsData: {fileID: 713815490}
   actionButtonPrefab: {fileID: 2384846728476801749, guid: 73b468de17b471c41b8d0a1ec64329a5, type: 3}
   actionsPanel: {fileID: 876555741}
-  enemiesOnMap:
+  creaturesOnMap:
   - {fileID: 1092085033}
+  - {fileID: 2036985690}
 --- !u!136 &2036985694
 CapsuleCollider:
   m_ObjectHideFlags: 0

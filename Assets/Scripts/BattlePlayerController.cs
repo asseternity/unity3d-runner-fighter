@@ -16,7 +16,7 @@ public class BattlePlayerController : MonoBehaviour
     public Vector3Int startingGridPosition = new Vector3Int(0, 0, 0);
 
     [Tooltip("The current grid position (x,y) where the player currently is")]
-    private Vector3Int currentGridPosition;
+    public Vector3Int currentGridPosition;
 
     // ui
     public GameObject turnData;
@@ -29,12 +29,12 @@ public class BattlePlayerController : MonoBehaviour
     public RectTransform actionsPanel;
 
     // turn data trackers
-    private bool playersTurn = true;
-    private int playerMovementLeft = 6;
-    private int playerActionsLeft = 1;
+    public bool playersTurn = true;
+    public int playerMovementLeft = 6;
+    public int playerActionsLeft = 1;
 
     // player stats
-    private int playerHealth = 20;
+    public int playerHealth = 20;
 
     // creation of moves
     BattleMoves basicAttack = new BattleMoves("Basic attack", 1, 10, 1);
@@ -189,7 +189,7 @@ public class BattlePlayerController : MonoBehaviour
         healthDataText.text = playerHealth.ToString();
     }
 
-    public void EndTurn()
+    public void EndPlayerTurn()
     {
         playersTurn = false;
 
@@ -197,14 +197,11 @@ public class BattlePlayerController : MonoBehaviour
         Text turnDataText = turnData.GetComponent<Text>();
         turnDataText.text = "enemy";
 
-        EnemyTurn();
+        EndEnemyTurn();
     }
 
-    async void EnemyTurn()
+    public void EndEnemyTurn()
     {
-        // do the turn
-        await Task.Delay(2000);
-
         playersTurn = true;
         playerMovementLeft = 6;
         playerActionsLeft = 1;
@@ -226,7 +223,7 @@ public class BattlePlayerController : MonoBehaviour
             GameObject btn = Instantiate(actionButtonPrefab, actionsPanel);
             var btnComp = btn.GetComponent<Button>();
             int moveIndex = i;
-            btnComp.onClick.AddListener(() => UseMove(playersMoves[moveIndex]));
+            btnComp.onClick.AddListener(() => UseAction(playersMoves[moveIndex]));
         }
     }
 
@@ -258,7 +255,7 @@ public class BattlePlayerController : MonoBehaviour
     // then it checks rage --- are you within the range?
     // rolls for attack, adds accuracy
     // if hits, minuses the hp from the target
-    void UseMove(BattleMoves move)
+    void UseAction(BattleMoves move)
     {
         if (playerActionsLeft > 0)
         {
