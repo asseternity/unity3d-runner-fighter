@@ -25,12 +25,20 @@ public class BattleEnemy : MonoBehaviour
     public int movement = 3;
     public int action = 1;
 
+    // starting stats
+    public int startingMovement = 3;
+    public int startingActions = 1;
+    public int startingHealth = 10;
+
     // ui
     public GameObject healthData;
 
     // Start is called before the first frame update
     void Start()
     {
+        // populate moves
+        moves.Add(basicAttack);
+
         // Convert the grid coordinate to a world position.
         // Adding half a cell offset centers the player in the cell.
         Vector3 worldPos = grid.CellToWorld(startingGridPosition) + grid.cellSize / 2f;
@@ -64,6 +72,13 @@ public class BattleEnemy : MonoBehaviour
         transform.position = worldPos;
         currentGridPosition = desiredGridPositionConverted;
         movement--;
+        Debug.Log("Movement left: " + movement.ToString());
+    }
+
+    public IEnumerator MoveWithDelay(Vector2 nextDesiredMove, float delay)
+    {
+        Move(nextDesiredMove); // Your existing Move method
+        yield return new WaitForSeconds(delay); // Adjust delay to control speed
     }
 
     // method to act
@@ -78,5 +93,6 @@ public class BattleEnemy : MonoBehaviour
             targetScript.playerHealth = targetScript.playerHealth - move.damage;
         }
         action--;
+        Debug.Log("Actions left: " + movement.ToString());
     }
 }

@@ -215,6 +215,7 @@ namespace EnemyAI
             bool attackPossible = canIAttack(playerPosition, myPosition, enemyObject);
             if (attackPossible)
             {
+                Debug.Log("I can attack!");
                 // if you can, do and end your turn
                 BattleMoves moveToUse = whichAttackToUse(playerPosition, myPosition, enemyObject);
                 script.UseAction(playerObject, moveToUse);
@@ -223,8 +224,15 @@ namespace EnemyAI
             }
             else
             {
+                Debug.Log("I cannot attack.");
+                int timesLopped = 0;
                 while (true)
                 {
+                    if (timesLopped > 20)
+                    {
+                        p.EndEnemyTurn();
+                        return;
+                    }
                     // if you can't, we enter a cycle:
                     // step 1 of the cycle - check which direction to move, then move to that cell
                     Vector2 nextDesiredMove = whichDirectionIsPlayer(
@@ -232,11 +240,18 @@ namespace EnemyAI
                         myPosition,
                         currentPositionOfCreatures
                     );
-                    script.Move(nextDesiredMove);
+                    script.StartCoroutine(script.MoveWithDelay(nextDesiredMove, 1f));
+                    Debug.Log("I moved to" + nextDesiredMove.ToString() + ". Can I attack now?");
+                    // grab updated enemy position
+                    myPosition = new Vector2(
+                        script.currentGridPosition.x,
+                        script.currentGridPosition.y
+                    );
                     // step 2 of the cycle - check if you can attack. if can - do and end your turn, if can't, proceed
                     bool attackPossible2 = canIAttack(playerPosition, myPosition, enemyObject);
                     if (attackPossible2)
                     {
+                        Debug.Log("Now I can attack.");
                         // if you can, do and end your turn
                         BattleMoves moveToUse = whichAttackToUse(
                             playerPosition,
@@ -247,6 +262,7 @@ namespace EnemyAI
                         p.EndEnemyTurn();
                         return;
                     }
+                    Debug.Log("I still cannot attack");
                     // step 3 of the cycle - if you're out of moves but cannot attack, end your turn
                     if (script.movement == 0 && !attackPossible2)
                     {
@@ -259,6 +275,7 @@ namespace EnemyAI
                         p.EndEnemyTurn();
                         return;
                     }
+                    timesLopped++;
                 }
             }
         }

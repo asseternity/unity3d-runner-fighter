@@ -80,8 +80,9 @@ public class BattlePlayerController : MonoBehaviour
     // [v] make a List of coordinates that are taken
     // [v] add every enemy to that list
     // [v] before the move, iterate over the list to see if that block is not in the list
-    // [_] 23) make an List of enemies, a method for doing their turns, and iterate through the List with the method for ai
-    // [_] 24) little animations for:
+    // [v] 23) make an List of enemies, a method for doing their turns, and iterate through the List with the method for ai
+    // [_] 24) in order to do animations, i have to use coroutines, but for that I need to refactor BattleEnemyAI to be MonoBehavior
+    // [_] 25) little animations for:
     // [_] attacks
     // [_] turn switches
     // [_] hits and misses
@@ -203,6 +204,9 @@ public class BattlePlayerController : MonoBehaviour
         {
             if (creaturesOnMap[i].name != "BattlePlayer")
             {
+                BattleEnemy enemyScript = creaturesOnMap[i].GetComponent<BattleEnemy>();
+                enemyScript.movement = enemyScript.startingMovement;
+                enemyScript.action = enemyScript.startingActions;
                 ai.AIPriorities(creaturesOnMap[i], gameObject, currentPositionsOfCreatures);
             }
         }
