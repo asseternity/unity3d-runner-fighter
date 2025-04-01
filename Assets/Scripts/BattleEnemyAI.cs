@@ -200,6 +200,7 @@ namespace EnemyAI
             List<Vector2> currentPositionOfCreatures
         )
         {
+            Debug.Log("AI Priorities commenced!");
             // AI method
             // grab turn resources
             BattleEnemy script = enemyObject.GetComponent<BattleEnemy>();

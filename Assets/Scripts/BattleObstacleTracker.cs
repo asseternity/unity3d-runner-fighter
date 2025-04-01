@@ -11,9 +11,21 @@ namespace BattleMapSystem
             List<Vector2> result = new List<Vector2>();
             for (int i = 0; i < enemies.Count; i++)
             {
-                BattleEnemy script = enemies[i].GetComponent<BattleEnemy>();
-                int x = script.currentGridPosition.x;
-                int y = script.currentGridPosition.y;
+                BattleEnemy ifEnemyScript = enemies[i].GetComponent<BattleEnemy>();
+                BattlePlayerController ifPlayerScript = enemies[i]
+                    .GetComponent<BattlePlayerController>();
+                int x = 0;
+                int y = 0;
+                if (ifEnemyScript == null)
+                {
+                    x = ifPlayerScript.currentGridPosition.x;
+                    y = ifPlayerScript.currentGridPosition.y;
+                }
+                else
+                {
+                    x = ifEnemyScript.currentGridPosition.x;
+                    y = ifEnemyScript.currentGridPosition.y;
+                }
                 Vector2 position = new Vector2(x, y);
                 result.Add(position);
             }

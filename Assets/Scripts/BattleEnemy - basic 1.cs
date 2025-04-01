@@ -54,6 +54,7 @@ public class BattleEnemy : MonoBehaviour
     // method to move
     public void Move(Vector2 desiredGridPosition)
     {
+        Debug.Log("AI movement sequence commenced!");
         Vector3Int desiredGridPositionConverted = new Vector3Int(
             (int)desiredGridPosition.x,
             (int)desiredGridPosition.y,
@@ -68,6 +69,7 @@ public class BattleEnemy : MonoBehaviour
     // method to act
     public void UseAction(GameObject playerObject, BattleMoves move)
     {
+        Debug.Log("AI action sequence commenced!");
         BattlePlayerController targetScript = playerObject.GetComponent<BattlePlayerController>();
         System.Random rnd = new System.Random();
         int attackRoll = rnd.Next(1, 20) + move.accuracy;

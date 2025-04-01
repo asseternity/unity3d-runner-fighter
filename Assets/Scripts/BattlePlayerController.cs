@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BattleMapSystem;
 using BattleMovesSystem;
+using EnemyAI;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,6 +40,9 @@ public class BattlePlayerController : MonoBehaviour
     // creation of moves
     BattleMoves basicAttack = new BattleMoves("Basic attack", 1, 10, 1);
     List<BattleMoves> playersMoves = new List<BattleMoves>();
+
+    // enemy AI system
+    BattleEnemyAI ai = new BattleEnemyAI();
 
     // targeting
     private GameObject target;
@@ -191,7 +195,17 @@ public class BattlePlayerController : MonoBehaviour
 
     public void EndPlayerTurn()
     {
+        Debug.Log("Player's turn over!");
         playersTurn = false;
+
+        // loop through all map entities
+        for (int i = 0; i < creaturesOnMap.Count; i++)
+        {
+            if (creaturesOnMap[i].name != "BattlePlayer")
+            {
+                ai.AIPriorities(creaturesOnMap[i], gameObject, currentPositionsOfCreatures);
+            }
+        }
 
         // update ui
         Text turnDataText = turnData.GetComponent<Text>();
@@ -202,6 +216,7 @@ public class BattlePlayerController : MonoBehaviour
 
     public void EndEnemyTurn()
     {
+        Debug.Log("Enemy's turn over!");
         playersTurn = true;
         playerMovementLeft = 6;
         playerActionsLeft = 1;
